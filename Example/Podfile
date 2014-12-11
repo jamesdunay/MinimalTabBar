@@ -1,0 +1,11 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+target 'MinimalTabBar', :exclusive => true do
+  pod "MinimalTabBar", :path => "../"
+end
+
+target 'Tests', :exclusive => true do
+  pod "MinimalTabBar", :path => "../"
+
+  pod 'Kiwi'
+end
