@@ -1,14 +1,21 @@
 # MinimalTabBar
 
-A new solution to the TabBar on iOS. 
-
-# Let Your ViewControllers Breath!
-MinimalTabBar(mtb) gets it's name by hiding once you have selected an item, leaving your UIViewControllers uncluttered. 
+A new, and elegant, solution to the TabBar on iOS. 
+MinimalTabBar gets it's name by hiding once you have selected an item, leaving your UIViewControllers uncluttered. 
 
 ![](http://i.imgur.com/of7jv2j.gif)
 
 
-While minimized the mtb allows for three seperate gestures to control navigation
+While minimized the user has three seperate gestures to control navigation.
+
+-- Tap
+Opens the MinimalTabBar
+
+-- Swipe
+Slides the user between adjacent ViewControllers
+
+-- Long Press
+Gives the user a complete look at their app
 
 
 Same functionality as the UITabBar with improved UX through gestures and UI transitions.
