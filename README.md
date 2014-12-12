@@ -13,7 +13,7 @@ MinimalTabBar gets it's name by hiding once you have selected an item, leaving y
 
 
 ## Gestures
-While minimized the user has three seperate gestures to control navigation.
+The MinimalTabBar has a number of gestures to allow unique user-interaction. While minimized the user has three seperate gestures to control navigation.
 
 -- Tap --- Opens the MinimalTabBar
 
@@ -22,7 +22,17 @@ While minimized the user has three seperate gestures to control navigation.
 -- Long Press --- Gives the user a complete look at their app
 
 
+## Implimentation
+MinimalTabBar implimentation mirrors the UITabBar very closely. Assuming your viewcontrollers have UITabBar items it's as simple as this.
 
+```objc
+JDMinimalTabBarController *minimalTabBarViewController = [[JDMinimalTabBarController alloc] init];
+```
+
+Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy. Just make sure to include a `UITabBar` item with each so you can specify a `name`, `image`, and `selectedImage`
+```objc
+[minimalTabBarViewController setViewControllers:@[sectionOneVC, sectionTwoVC, sectionThreeVC, sectionFourVC, sectionFiveVC]];
+```
 
 
 
