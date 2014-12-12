@@ -17,7 +17,7 @@ The MinimalTabBar has a number of gestures to allow unique user-interaction. Whi
 
   * **Tap** Opens the MinimalTabBar
   * **Swipe** Slides the user between adjacent UIViewControllers
-  * **Long** Press Gives the user a complete look at their app
+  * **Long** Press Gives the user a complete look at the app
 
 
 
