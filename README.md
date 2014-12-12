@@ -29,10 +29,19 @@ MinimalTabBar implimentation mirrors the UITabBar very closely. Assuming your vi
 JDMinimalTabBarController *minimalTabBarViewController = [[JDMinimalTabBarController alloc] init];
 ```
 
+
 Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy. Just make sure to include a `UITabBar` item with each so you can specify a `name`, `image`, and `selectedImage`
 ```objc
 [minimalTabBarViewController setViewControllers:@[sectionOneVC, sectionTwoVC, sectionThreeVC, sectionFourVC, sectionFiveVC]];
 ```
+
+Additionally you can do set the following attributes:
+**Default tint color** `minimalTabBarViewController.minimalBar.defaultTintColor = [UIColor whiteColor];`
+**Selected item tint color** `minimalTabBarViewController.minimalBar.selectedTintColor = [UIColor redColor];`
+**Toggle to show/hide item titles** `minimalTabBarViewController.minimalBar.showTitles = YES;`
+**Toggle only selected item to hide title** `minimalTabBarViewController.minimalBar.hidesTitlesWhenSelected = YES;`
+**Set background color** `minimalTabBarViewController.minimalBar.backgroundColor = [UIColor clearColor];`    
+    
 
 
 
