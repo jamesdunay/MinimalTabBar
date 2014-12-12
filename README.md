@@ -15,9 +15,9 @@ MinimalTabBar gets it's name by hiding once you have selected an item, leaving y
 ## Gestures
 The MinimalTabBar has a number of gestures to allow unique user-interaction. While minimized the user has three seperate gestures to control navigation.
 
-  * *Tap* Opens the MinimalTabBar
-  * *Swipe* Slides the user between adjacent UIViewControllers
-  * *Long* Press Gives the user a complete look at their app
+  * **Tap** Opens the MinimalTabBar
+  * **Swipe** Slides the user between adjacent UIViewControllers
+  * **Long** Press Gives the user a complete look at their app
 
 
 
