@@ -22,6 +22,8 @@ The MinimalTabBar has a number of gestures to allow unique user-interaction. Whi
 **Long Press** *Gives the user a complete look at their app*
 
 
+
+
 ## Implimentation
 Implimentation mirrors the UITabBar very closely. Assuming your `UIViewControllers` have UITabBar items it's as simple as this.
 
