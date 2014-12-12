@@ -28,7 +28,7 @@ Implimentation mirrors Apple's `UITabBar` very closely. Assuming your `UIViewCon
 JDMinimalTabBarController *minimalTabBarViewController = [[JDMinimalTabBarController alloc] init];
 ```
 
-Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy. Just make sure to include a `UITabBar` item with each so you can specify a `name`, `image`, and `selectedImage`
+Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy. Use the `UITabBar` item's `name`, `image`, and `selectedImage` to control the look of each tab.
 ```objc
 [minimalTabBarViewController setViewControllers:@[sectionOneVC, sectionTwoVC, sectionThreeVC, sectionFourVC, sectionFiveVC]];
 ```
