@@ -15,11 +15,11 @@ MinimalTabBar gets it's name by hiding once you have selected an item, leaving y
 ## Gestures
 The MinimalTabBar has a number of gestures to allow unique user-interaction. While minimized the user has three seperate gestures to control navigation.
 
-*Tap* Opens the MinimalTabBar
+**Tap** Opens the MinimalTabBar
 
-*Swipe* Slides the user between adjacent ViewControllers
+**Swipe** Slides the user between adjacent ViewControllers
 
-*Long Press* Gives the user a complete look at their app
+**Long Press** Gives the user a complete look at their app
 
 
 ## Implimentation
@@ -35,7 +35,7 @@ Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy.
 [minimalTabBarViewController setViewControllers:@[sectionOneVC, sectionTwoVC, sectionThreeVC, sectionFourVC, sectionFiveVC]];
 ```
 
-Additionally you can do set the following attributes:
+*Additionally you can do set the following attributes:*
 
 **Default tint color** `minimalTabBarViewController.minimalBar.defaultTintColor = [UIColor whiteColor];`
 
