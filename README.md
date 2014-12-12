@@ -1,3 +1,9 @@
+[![CI Status](http://img.shields.io/travis/jamesdunay@gmail.com/MinimalTabBar.svg?style=flat)](https://travis-ci.org/jamesdunay@gmail.com/MinimalTabBar)
+[![Version](https://img.shields.io/cocoapods/v/MinimalTabBar.svg?style=flat)](http://cocoadocs.org/docsets/MinimalTabBar)
+[![License](https://img.shields.io/cocoapods/l/MinimalTabBar.svg?style=flat)](http://cocoadocs.org/docsets/MinimalTabBar)
+[![Platform](https://img.shields.io/cocoapods/p/MinimalTabBar.svg?style=flat)](http://cocoadocs.org/docsets/MinimalTabBar)
+
+
 # MinimalTabBar
 
 A new, and elegant, solution to the TabBar on iOS. 
@@ -20,10 +26,6 @@ While minimized the user has three seperate gestures to control navigation.
 
 
 
-[![CI Status](http://img.shields.io/travis/jamesdunay@gmail.com/MinimalTabBar.svg?style=flat)](https://travis-ci.org/jamesdunay@gmail.com/MinimalTabBar)
-[![Version](https://img.shields.io/cocoapods/v/MinimalTabBar.svg?style=flat)](http://cocoadocs.org/docsets/MinimalTabBar)
-[![License](https://img.shields.io/cocoapods/l/MinimalTabBar.svg?style=flat)](http://cocoadocs.org/docsets/MinimalTabBar)
-[![Platform](https://img.shields.io/cocoapods/p/MinimalTabBar.svg?style=flat)](http://cocoadocs.org/docsets/MinimalTabBar)
 
 ## Usage
 
