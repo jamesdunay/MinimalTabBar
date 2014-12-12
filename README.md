@@ -1,4 +1,5 @@
 # MinimalTabBar
+![](http://i.imgur.com/Mlt9OPD.gif)
 
 [![CI Status](http://img.shields.io/travis/jamesdunay@gmail.com/MinimalTabBar.svg?style=flat)](https://travis-ci.org/jamesdunay@gmail.com/MinimalTabBar)
 [![Version](https://img.shields.io/cocoapods/v/MinimalTabBar.svg?style=flat)](http://cocoadocs.org/docsets/MinimalTabBar)
