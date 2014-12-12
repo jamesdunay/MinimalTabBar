@@ -38,11 +38,8 @@ Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy.
 *MinimalTabBarController's MinimalBar you can set the following attributes:*
 
   * `@property (nonatomic, strong) UIColor* defaultTintColor;`
-
   * `@property (nonatomic, strong) UIColor* selectedTintColor;`
-
   * `@property (nonatomic) BOOL showTitles;`
-
   * `@property (nonatomic) BOOL hidesTitlesWhenSelected;`
 
 *You can also provide the MinimalBar with a background color if you so wish*
