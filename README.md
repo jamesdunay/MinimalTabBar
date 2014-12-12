@@ -21,7 +21,7 @@ it, simply add the following line to your Podfile:
 
 ## Author
 
-jamesdunay@gmail.com, jamesdunay@gmail.com
+jamesdunay at gmail 
 
 ## License
 
