@@ -35,17 +35,17 @@ Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy.
 [minimalTabBarViewController setViewControllers:@[sectionOneVC, sectionTwoVC, sectionThreeVC, sectionFourVC, sectionFiveVC]];
 ```
 
-*Additionally you can set the following attributes:*
+*MinimalTabBarController's MinimalBar you can set the following attributes:*
 
-**Default tint color** `minimalTabBarViewController.minimalBar.defaultTintColor = [UIColor whiteColor];`
+  * `@property (nonatomic, strong) UIColor* defaultTintColor;`
 
-**Selected item tint color** `minimalTabBarViewController.minimalBar.selectedTintColor = [UIColor redColor];`
+  * `@property (nonatomic, strong) UIColor* selectedTintColor;`
 
-**Toggle to show/hide item titles** `minimalTabBarViewController.minimalBar.showTitles = YES;`
+  * `@property (nonatomic) BOOL showTitles;`
 
-**Toggle only selected item to hide title** `minimalTabBarViewController.minimalBar.hidesTitlesWhenSelected = YES;`
+  * `@property (nonatomic) BOOL hidesTitlesWhenSelected;`
 
-**Set background color** `minimalTabBarViewController.minimalBar.backgroundColor = [UIColor clearColor];`
+*You can also provide the MinimalBar with a background color if you so wish*
 
     
 
