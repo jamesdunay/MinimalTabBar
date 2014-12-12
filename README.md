@@ -23,7 +23,7 @@ The MinimalTabBar has a number of gestures to allow unique user-interaction. Whi
 
 
 ## Implimentation
-MinimalTabBar implimentation mirrors the UITabBar very closely. Assuming your viewcontrollers have UITabBar items it's as simple as this.
+Implimentation mirrors the UITabBar very closely. Assuming your `UIViewControllers` have UITabBar items it's as simple as this.
 
 ```objc
 JDMinimalTabBarController *minimalTabBarViewController = [[JDMinimalTabBarController alloc] init];
@@ -35,7 +35,7 @@ Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy.
 [minimalTabBarViewController setViewControllers:@[sectionOneVC, sectionTwoVC, sectionThreeVC, sectionFourVC, sectionFiveVC]];
 ```
 
-*Additionally you can do set the following attributes:*
+*Additionally you can set the following attributes:*
 
 **Default tint color** `minimalTabBarViewController.minimalBar.defaultTintColor = [UIColor whiteColor];`
 
@@ -49,14 +49,9 @@ Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy.
 
     
 
-
-
-
 ## Usage
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
-## Requirements
 
 ## Installation
 
