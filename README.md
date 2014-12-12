@@ -7,7 +7,7 @@
 # MinimalTabBar
 
 A new, and elegant, solution to the TabBar on iOS. 
-MinimalTabBar gets it's name by hiding once you have selected an item, leaving your UIViewControllers uncluttered. 
+MinimalTabBar gets it's name by hiding once you have selected an item, leaving your `UIViewControllers` uncluttered. 
 
 ![](http://i.imgur.com/of7jv2j.gif)
 
@@ -16,19 +16,17 @@ MinimalTabBar gets it's name by hiding once you have selected an item, leaving y
 The MinimalTabBar has a number of gestures to allow unique user-interaction. While minimized the user has three seperate gestures to control navigation.
 
   * **Tap** Opens the MinimalTabBar
-  * **Swipe** Slides the user between adjacent UIViewControllers
+  * **Swipe** Slides the user between adjacent `UIViewControllers`
   * **Long** Press Gives the user a complete look at the app
 
 
 
 
 ## Implimentation
-Implimentation mirrors the UITabBar very closely. Assuming your `UIViewControllers` have UITabBar items it's as simple as this.
-
+Implimentation mirrors Apple's `UITabBar` very closely. Assuming your `UIViewControllers` have `UITabBar` items it's only two steps.
 ```objc
 JDMinimalTabBarController *minimalTabBarViewController = [[JDMinimalTabBarController alloc] init];
 ```
-
 
 Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy. Just make sure to include a `UITabBar` item with each so you can specify a `name`, `image`, and `selectedImage`
 ```objc
