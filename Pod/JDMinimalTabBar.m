@@ -142,32 +142,27 @@ typedef enum : NSUInteger {
 #pragma Mark Tap Button ---
 
 - (void)touchedButton:(id)sender {
-    
+    JDMinimalTabBarButton *mbButton = (JDMinimalTabBarButton *)[sender view];
     if (!self.isDisplayingAll) {
-        JDMinimalTabBarButton *mbButton = (JDMinimalTabBarButton *)[sender view];
-        
         switch ([mbButton buttonState]) {
             case ButtonStateDisplayedInactive:
                 [mbButton setButtonState:ButtonStateSelected];
                 [self collapseAllButtons];
                 [self.mMinimalBarDelegate changeToPageIndex:mbButton.tag];
                 break;
-                
             case ButtonStateDisplayedActive:
                 [mbButton setButtonState:ButtonStateSelected];
                 [self collapseAllButtons];
                 [self.mMinimalBarDelegate changeToPageIndex:mbButton.tag];
                 break;
-                
             case ButtonStateSelected:
                 [self displayAllButtons];
                 break;
-                
             default:
                 break;
         }
     }else{
-        
+        [self.mMinimalBarDelegate displayViewAtIndex:mbButton.tag];
     }
 }
 

@@ -15,6 +15,7 @@
 - (void)manualOffsetScrollview:(CGFloat)offset;
 - (void)displayAllScreensWithStartingDisplayOn:(CGFloat)startingPosition;
 - (void)sendScrollViewToPoint:(CGPoint)point;
+- (void)displayViewAtIndex:(NSInteger)index;
 
 @end
 

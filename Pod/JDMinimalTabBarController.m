@@ -7,14 +7,14 @@
 //
 
 #import "JDMinimalTabBarController.h"
-#import "UIViewHitTestOverride.h"
+#import "JDViewHitTestOverride.h"
 #import <QuartzCore/QuartzCore.h>
 
 static CGFloat minimalBarHeight = 70.f;
 
 @interface JDMinimalTabBarController ()
 @property (nonatomic, strong) UIScrollView *scrollView;
-@property (nonatomic, strong) UIViewHitTestOverride *coverView;
+@property (nonatomic, strong) JDViewHitTestOverride *coverView;
 @property (nonatomic) CGAffineTransform viewControllerTransform;
 @property (nonatomic) CGAffineTransform scrollViewTransform;
 @end
@@ -38,7 +38,7 @@ static CGFloat minimalBarHeight = 70.f;
     _viewControllers = [[NSArray alloc] init];
     _scrollView = [[UIScrollView alloc] init];
     
-    _coverView = [[UIViewHitTestOverride alloc] init];
+    _coverView = [[JDViewHitTestOverride alloc] init];
     _coverView.translatesAutoresizingMaskIntoConstraints = NO;
     _coverView.scrollView = _scrollView;
     [self.view addSubview:_coverView];
@@ -159,11 +159,14 @@ static CGFloat minimalBarHeight = 70.f;
 #pragma Mark End Delegate
 
 - (void)selectedView:(UITapGestureRecognizer *)tap {
-    [self sendViewsToBackPosition:NO];
-
     NSInteger selectedTag = [tap view].tag;
-    [self.minimalBar returnMenuToSelected:selectedTag];
-    
+    [self displayViewAtIndex:selectedTag];
+}
+
+- (void)displayViewAtIndex:(NSInteger)index{
+
+    [self sendViewsToBackPosition:NO];
+    [self.minimalBar returnMenuToSelected:index];
     [UIView animateWithDuration:.25f
                           delay:0.f
          usingSpringWithDamping:.98
@@ -171,7 +174,7 @@ static CGFloat minimalBarHeight = 70.f;
                         options:UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction
                      animations: ^{
                          [self allowScrollViewUserInteraction:NO];
-                         self.scrollView.contentOffset = CGPointMake(self.view.frame.size.width * selectedTag, 0);
+                         self.scrollView.contentOffset = CGPointMake(self.view.frame.size.width * index, 0);
                      }
      
                      completion:nil];
