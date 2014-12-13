@@ -13,7 +13,7 @@
 -(id)initWithButtonWithTabBarItem:(UITabBarItem*)tabBarItem{
     self = [super init];
     if (self) {
-
+        
         self.tag = tabBarItem.tag;
         self.translatesAutoresizingMaskIntoConstraints = NO;
         
@@ -94,6 +94,10 @@
     if (_hideTitleWhenSelected) {
         _title.hidden = selected;
     }
+}
+
+-(void)setHighlighted:(BOOL)highlighted{
+// Need to disable Highlighting to keep icon from flicker
 }
 
 -(void)setDefaultTintColor:(UIColor *)defaultTintColor{

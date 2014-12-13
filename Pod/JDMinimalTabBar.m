@@ -61,6 +61,8 @@ typedef enum : NSUInteger {
         [self.buttons addObject:mbButton];
         [self addSubview:mbButton];
     }];
+    
+    [self shouldEnablePanGestures:NO];
 }
 
 
@@ -140,6 +142,7 @@ typedef enum : NSUInteger {
 #pragma Mark Tap Button ---
 
 - (void)touchedButton:(id)sender {
+    
     if (!self.isDisplayingAll) {
         JDMinimalTabBarButton *mbButton = (JDMinimalTabBarButton *)[sender view];
         
@@ -163,6 +166,8 @@ typedef enum : NSUInteger {
             default:
                 break;
         }
+    }else{
+        
     }
 }
 
