@@ -42,6 +42,10 @@ Once you've created your MinimalTabBar assigning it `UIViewControllers` is easy.
 
 *You can also provide the MinimalBar with a background color if you so wish*
 
+## Notes
+
+If you have any comments or run into any errors, please let me know as I am making changes frequently. 
+
     
 
 ## Usage
@@ -57,7 +61,8 @@ it, simply add the following line to your Podfile:
 
 ## Author
 
-jamesdunay at gmail 
+jamesdunay [at] gmail 
+
 
 ## License
 
