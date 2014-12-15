@@ -22,8 +22,8 @@ The MinimalTabBar has a number of gestures to allow unique user-interaction. Whi
 
 
 
-## Implimentation
-Implimentation mirrors Apple's `UITabBar` very closely. Assuming your `UIViewControllers` have `UITabBar` items it's only two steps.
+## Implementation
+Implementation mirrors Apple's `UITabBar` very closely. Assuming your `UIViewControllers` have `UITabBar` items it's only two steps.
 ```objc
 JDMinimalTabBarController *minimalTabBarViewController = [[JDMinimalTabBarController alloc] init];
 ```
