@@ -6,7 +6,7 @@
 
 # MinimalTabBar
 
-A new, and elegant, solution to the TabBar on iOS. 
+An elegant revision to the TabBar on iOS. 
 MinimalTabBar gets it's name by hiding once you have selected an item, leaving your `UIViewControllers` uncluttered. 
 
 ![](http://i.imgur.com/of7jv2j.gif)
