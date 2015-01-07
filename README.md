@@ -12,6 +12,10 @@ MinimalTabBar gets it's name by hiding once you have selected an item, leaving y
 ![](http://i.imgur.com/of7jv2j.gif)
 
 
+## Demo
+For a useable demo please look at the repo [MinimalTabBarDemo](https://github.com/jamesdunay/MinimalTabBarDemo)
+
+
 ## Gestures
 The MinimalTabBar has a number of gestures to allow unique user-interaction. While minimized the user has three seperate gestures to control navigation.
 
