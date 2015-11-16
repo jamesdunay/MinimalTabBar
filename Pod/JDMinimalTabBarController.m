@@ -8,22 +8,45 @@
 
 #import "JDMinimalTabBarController.h"
 #import "JDViewHitTestOverride.h"
+#import "BDZSituationDisplayService.h"
 #import <QuartzCore/QuartzCore.h>
 
 static CGFloat minimalBarHeight = 70.f;
 
+static NSString *kLeftButtonID = @"leftButton";
+static NSString *kRightButtonID = @"rightButton";
+
 @interface JDMinimalTabBarController ()
+
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) JDViewHitTestOverride *coverView;
 @property (nonatomic) CGAffineTransform viewControllerTransform;
 @property (nonatomic) CGAffineTransform scrollViewTransform;
+
+@property (nonatomic, strong) NSMutableDictionary *optionalControllerButtons;
+
+@property (nonatomic, strong) UIView *optionalLeftControllerAccessory;
+@property (nonatomic, strong) UIView *optionalRightControllerAccessory;
+
 @end
 
 @implementation JDMinimalTabBarController
 
++ (JDMinimalTabBarController *)sharedInstance
+{
+    static JDMinimalTabBarController *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[JDMinimalTabBarController alloc] init];
+    });
+    
+    return sharedInstance;
+}
+
 - (id)init {
     self = [super init];
     if (self) {
+        self.view.backgroundColor = [UIColor blackColor];
     }
     return self;
 }
@@ -34,14 +57,20 @@ static CGFloat minimalBarHeight = 70.f;
 }
 
 - (void)setupViews {
-    _minimalBar = [[JDMinimalTabBar alloc] init];
-    _viewControllers = [[NSArray alloc] init];
-    _scrollView = [[UIScrollView alloc] init];
     
-    _coverView = [[JDViewHitTestOverride alloc] init];
-    _coverView.translatesAutoresizingMaskIntoConstraints = NO;
+    _optionalControllerButtons = [NSMutableDictionary new];
+    
+    _minimalBar = [JDMinimalTabBar new];
+    _viewControllers = [NSArray new];
+    _scrollView = [UIScrollView new];
+    
+    _optionalLeftControllerAccessory = [UIView new];
+    _optionalRightControllerAccessory = [UIView new];
+    
+    _coverView = [JDViewHitTestOverride new];
     _coverView.scrollView = _scrollView;
     [self.view addSubview:_coverView];
+    
     
     [_scrollView setPagingEnabled:YES];
     [_scrollView setDelegate:self];
@@ -52,38 +81,37 @@ static CGFloat minimalBarHeight = 70.f;
     [_coverView addSubview:_scrollView];
     
     _minimalBar.mMinimalBarDelegate = self;
-    _minimalBar.screenHeight = self.view.frame.size.height;
-    _minimalBar.translatesAutoresizingMaskIntoConstraints = NO;
 
+    _optionalLeftControllerAccessory.translatesAutoresizingMaskIntoConstraints = NO;
+    _optionalRightControllerAccessory.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    _minimalBar.translatesAutoresizingMaskIntoConstraints = NO;
+    _coverView.translatesAutoresizingMaskIntoConstraints = NO;
     
     [self.view addSubview:_minimalBar];
+    [self.view addSubview:_optionalLeftControllerAccessory];
+    [self.view addSubview:_optionalRightControllerAccessory];
+    
+    [self.view addSubview:[[BDZSituationDisplayService sharedInstance] display]];
+    [[BDZSituationDisplayService sharedInstance] setSuperView:self.view];
     
     [self.view addConstraints:[self defaultConstraints]];
     [self allowScrollViewUserInteraction:NO];
 }
 
+//- (void)viewWillLayoutSubviews
+//{
+//    [super viewWillLayoutSubviews];
+//    [_minimalBar layoutSubviews];
+//}
+
 - (NSArray *)defaultConstraints {
     NSMutableArray *constraints = [[NSMutableArray alloc] init];
     
-    [constraints addObjectsFromArray:
-     [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_coverView]|"
-                                             options:0
-                                             metrics:0
-                                               views:NSDictionaryOfVariableBindings(_coverView)]];
+    UIView *situationDisplay = [[BDZSituationDisplayService sharedInstance] display];
     
-    [constraints addObjectsFromArray:
-     [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_coverView]|"
-                                             options:0
-                                             metrics:0
-                                               views:NSDictionaryOfVariableBindings(_coverView)]];
-    
-    [constraints addObjectsFromArray:
-     [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_minimalBar]|"
-                                             options:0
-                                             metrics:0
-                                               views:NSDictionaryOfVariableBindings(_minimalBar)
-      ]];
-    
+    [constraints addObjectsFromArray:[BDZConstraintGenerator horizontalConstraintsForViews:@[_coverView, _minimalBar, situationDisplay]]];
+    [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_coverView]]];
     
     [constraints addObject:[NSLayoutConstraint constraintWithItem:_minimalBar
                                                         attribute:NSLayoutAttributeHeight
@@ -91,17 +119,72 @@ static CGFloat minimalBarHeight = 70.f;
                                                            toItem:nil
                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                        multiplier:1
-                                                         constant:minimalBarHeight
-                            ]];
+                                                         constant:minimalBarHeight ]];
     
     [constraints addObject:[NSLayoutConstraint constraintWithItem:_minimalBar
                                                         attribute:NSLayoutAttributeBottom
                                                         relatedBy:NSLayoutRelationEqual
-                                                           toItem:self.view
+                                                           toItem:situationDisplay
+                                                        attribute:NSLayoutAttributeTop
+                                                       multiplier:1
+                                                         constant:0.f ]];
+    
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:situationDisplay
+                                                        attribute:NSLayoutAttributeHeight
+                                                        relatedBy:NSLayoutRelationEqual
+                                                           toItem:nil
+                                                        attribute:NSLayoutAttributeNotAnAttribute
+                                                       multiplier:1
+                                                         constant:30. ]];
+    
+    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-15-[_optionalLeftControllerAccessory(==_optionalRightControllerAccessory)]-60-[_optionalRightControllerAccessory]-15-|"
+                                                                             options:0
+                                                                             metrics:nil
+                                                                               views:NSDictionaryOfVariableBindings(_optionalLeftControllerAccessory, _optionalRightControllerAccessory)
+                                      ]];
+    
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:_optionalRightControllerAccessory
+                                                        attribute:NSLayoutAttributeTop
+                                                        relatedBy:NSLayoutRelationEqual
+                                                           toItem:_minimalBar
+                                                        attribute:NSLayoutAttributeTop
+                                                       multiplier:1
+                                                         constant:0.f ]];
+    
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:_optionalRightControllerAccessory
+                                                        attribute:NSLayoutAttributeBottom
+                                                        relatedBy:NSLayoutRelationEqual
+                                                           toItem:_minimalBar
                                                         attribute:NSLayoutAttributeBottom
                                                        multiplier:1
-                                                         constant:0.f
-                            ]];
+                                                         constant:0.f ]];
+    
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:_optionalLeftControllerAccessory
+                                                        attribute:NSLayoutAttributeTop
+                                                        relatedBy:NSLayoutRelationEqual
+                                                           toItem:_minimalBar
+                                                        attribute:NSLayoutAttributeTop
+                                                       multiplier:1
+                                                         constant:0.f ]];
+    
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:_optionalLeftControllerAccessory
+                                                        attribute:NSLayoutAttributeBottom
+                                                        relatedBy:NSLayoutRelationEqual
+                                                           toItem:_minimalBar
+                                                        attribute:NSLayoutAttributeBottom
+                                                       multiplier:1
+                                                         constant:0.f ]];
+
+    NSLayoutConstraint *situationDisplayTopConstraint = [NSLayoutConstraint constraintWithItem:situationDisplay
+                                                                                     attribute:NSLayoutAttributeTop
+                                                                                     relatedBy:NSLayoutRelationEqual
+                                                                                        toItem:self.view
+                                                                                     attribute:NSLayoutAttributeBottom
+                                                                                    multiplier:1
+                                                                                      constant:0.f ];
+    
+    [[BDZSituationDisplayService sharedInstance] setRequiredDisplayConstraint:situationDisplayTopConstraint];
+    [constraints addObject:situationDisplayTopConstraint];
     
     return [constraints copy];
 }
@@ -112,6 +195,7 @@ static CGFloat minimalBarHeight = 70.f;
 - (void)changeToPageIndex:(NSUInteger)pageIndex {
     CGFloat xPoint = pageIndex * self.view.frame.size.width;
     [self.scrollView setContentOffset:CGPointMake(xPoint, 0)];
+    [self showButtonForControllerIndex:pageIndex];
 }
 
 
@@ -230,6 +314,67 @@ static CGFloat minimalBarHeight = 70.f;
 }
 
 
+#pragma Optional Accessory Methods
+
+- (void)showButtonForControllerIndex:(NSInteger)controllerIndex
+{
+    _optionalLeftControllerAccessory.userInteractionEnabled = NO;
+    _optionalRightControllerAccessory.userInteractionEnabled = NO;
+    
+    [_optionalLeftControllerAccessory.subviews each:^(UIButton *leftButton) {
+        leftButton.alpha = 0;
+    }];
+    
+    [_optionalRightControllerAccessory.subviews each:^(UIButton *rightButton) {
+        rightButton.alpha = 0;
+    }];
+    
+    UIButton *leftButtonToShow = _optionalControllerButtons[@(controllerIndex)][kLeftButtonID];
+    UIButton *rightButtonToShow = _optionalControllerButtons[@(controllerIndex)][kRightButtonID];
+    
+    if (leftButtonToShow) {
+        _optionalLeftControllerAccessory.userInteractionEnabled = YES;
+        leftButtonToShow.alpha = 1;
+    }
+    
+    if (rightButtonToShow) {
+        _optionalRightControllerAccessory.userInteractionEnabled = YES;
+        rightButtonToShow.alpha = 1;
+    }
+}
+
+- (void)installOptionalLeftButton:(UIButton *)leftButton onController:(UIViewController *)controller
+{
+    leftButton.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSInteger indexOfView = [_viewControllers indexOfObject:controller];
+    
+    [_optionalLeftControllerAccessory addSubview:leftButton];
+    _optionalControllerButtons[@(indexOfView)][kLeftButtonID] = leftButton;
+    
+    [_optionalLeftControllerAccessory addConstraints:[BDZConstraintGenerator verticalConstraintsForViews:@[leftButton]]];
+    [_optionalLeftControllerAccessory addConstraints:[BDZConstraintGenerator horizontalConstraintsForViews:@[leftButton]]];
+    
+    [_optionalLeftControllerAccessory layoutSubviews];
+}
+
+- (void)installOptionalRightButton:(UIButton *)rightButton onController:(UIViewController *)controller
+{
+    rightButton.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [_optionalRightControllerAccessory addSubview:rightButton];
+    _optionalControllerButtons[@(controller.view.tag)][kRightButtonID] = rightButton;
+    
+    [_optionalRightControllerAccessory addConstraints:[BDZConstraintGenerator verticalConstraintsForViews:@[rightButton]]];
+    [_optionalRightControllerAccessory addConstraints:[BDZConstraintGenerator horizontalConstraintsForViews:@[rightButton]]];
+    
+    [_optionalRightControllerAccessory layoutSubviews];
+}
+
+
+
+// need to layoutSubviews for each.
+
 
 #pragma Mark Setters
 
@@ -245,8 +390,10 @@ static CGFloat minimalBarHeight = 70.f;
     }
     
     [_viewControllers enumerateObjectsUsingBlock: ^(UIViewController* viewController, NSUInteger idx, BOOL *stop) {
+        
+        _optionalControllerButtons[@(idx)] = [@{} mutableCopy];
+        
         viewController.view.frame = CGRectMake(self.view.frame.size.width * idx, 0, self.view.frame.size.width, self.view.frame.size.height);
-        viewController.view.translatesAutoresizingMaskIntoConstraints = NO;
         viewController.view.tag = idx;
         viewController.tabBarItem.tag = idx;
         

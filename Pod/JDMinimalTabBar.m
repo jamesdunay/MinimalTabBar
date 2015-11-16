@@ -25,14 +25,17 @@ typedef enum : NSUInteger {
 @property (nonatomic) CGFloat lastXOffset;
 @property (nonatomic, strong) NSMutableArray *buttons;
 @property (nonatomic, strong) NSArray *adjustableButtonConstaints;
+@property (nonatomic) BOOL initialLayoutsSet;
 @property (nonatomic) BOOL isDisplayingAll;
 @end
 
 @implementation JDMinimalTabBar
 
 - (void)layoutSubviews {
-    [super layoutSubviews];
+
     [self addConstraints:[self defaultConstraints]];
+
+    [super layoutSubviews];
 }
 
 
@@ -61,7 +64,7 @@ typedef enum : NSUInteger {
         [self.buttons addObject:mbButton];
         [self addSubview:mbButton];
     }];
-    
+
     [self shouldEnablePanGestures:NO];
 }
 
@@ -261,10 +264,13 @@ typedef enum : NSUInteger {
 #pragma Mark Pan Methods ---
 
 - (void)panSelectedButton:(UIPanGestureRecognizer *)gesture {
+
     CGPoint translatedPoint = [gesture translationInView:self];
+    UIView *targetedView = [gesture view];
+    
     if ([gesture state] == UIGestureRecognizerStateBegan) {
-        self.firstX = [[gesture view] center].x;
-        self.firstY = [[gesture view] center].y;
+        self.firstX = targetedView.center.x;
+        self.firstY = targetedView.center.y;
     }
     
     //Matching swipe with scrollview
@@ -284,7 +290,9 @@ typedef enum : NSUInteger {
         else if (endingLocation.x >= 50)    [self switchToPageNext:NO];
         else                                [self returnScrollViewToSelectedTab];
         
-        void (^animations)(void) = ^{ [[gesture view] setCenter:CGPointMake(self.firstX, self.firstY)]; };
+        void (^animations)(void) = ^{
+            targetedView.center = CGPointMake(self.firstX, self.firstY);
+        };
         
         [UIView animateWithDuration:animationDuration animations:animations completion:nil];
         self.lastXOffset = 0;
@@ -307,7 +315,7 @@ typedef enum : NSUInteger {
         void (^animations)(void) = ^{
             [self.adjustableButtonConstaints enumerateObjectsUsingBlock: ^(NSLayoutConstraint *constraint, NSUInteger idx, BOOL *stop) {
                 if ([(JDMinimalTabBarButton *)constraint.firstItem isEqual : self.buttons[[self indexOfActiveButton]]]) {
-                    constraint.constant = self.frame.size.width / 5 * 2;
+                    constraint.constant = self.frame.size.width / self.buttons.count;
                 }
             }];
             activeButton.alpha = 0;

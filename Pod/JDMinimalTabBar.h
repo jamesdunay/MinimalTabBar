@@ -22,7 +22,6 @@
 @interface JDMinimalTabBar : UIView <UIGestureRecognizerDelegate>
 
 @property (nonatomic) CGFloat displayOverviewYCoord;
-@property (nonatomic) CGFloat screenHeight;
 @property (nonatomic) CGSize defaultFrameSize;
 @property (nonatomic) BOOL showTitles;
 @property (nonatomic) BOOL hidesTitlesWhenSelected;

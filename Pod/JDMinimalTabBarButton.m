@@ -20,9 +20,9 @@
         _buttonState = ButtonStateDisplayedInactive;
         
         [[self imageView] setContentMode:UIViewContentModeScaleAspectFit];
-
-        UIImage *defaultImage = [tabBarItem.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        UIImage *selectedImage = [tabBarItem.selectedImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        
+        UIImage *defaultImage = tabBarItem.image;
+        UIImage *selectedImage = tabBarItem.selectedImage;
         
         [self setImage:defaultImage forState:UIControlStateNormal];
         [self setImage:selectedImage forState:UIControlStateSelected];
