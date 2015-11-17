@@ -13,20 +13,12 @@
 
 static CGFloat minimalBarHeight = 70.f;
 
-static NSString *kLeftButtonID = @"leftButton";
-static NSString *kRightButtonID = @"rightButton";
-
 @interface JDMinimalTabBarController ()
 
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) JDViewHitTestOverride *coverView;
 @property (nonatomic) CGAffineTransform viewControllerTransform;
 @property (nonatomic) CGAffineTransform scrollViewTransform;
-
-@property (nonatomic, strong) NSMutableDictionary *optionalControllerButtons;
-
-@property (nonatomic, strong) UIView *optionalLeftControllerAccessory;
-@property (nonatomic, strong) UIView *optionalRightControllerAccessory;
 
 @end
 
@@ -58,14 +50,9 @@ static NSString *kRightButtonID = @"rightButton";
 
 - (void)setupViews {
     
-    _optionalControllerButtons = [NSMutableDictionary new];
-    
     _minimalBar = [JDMinimalTabBar new];
     _viewControllers = [NSArray new];
     _scrollView = [UIScrollView new];
-    
-    _optionalLeftControllerAccessory = [UIView new];
-    _optionalRightControllerAccessory = [UIView new];
     
     _coverView = [JDViewHitTestOverride new];
     _coverView.scrollView = _scrollView;
@@ -81,16 +68,11 @@ static NSString *kRightButtonID = @"rightButton";
     [_coverView addSubview:_scrollView];
     
     _minimalBar.mMinimalBarDelegate = self;
-
-    _optionalLeftControllerAccessory.translatesAutoresizingMaskIntoConstraints = NO;
-    _optionalRightControllerAccessory.translatesAutoresizingMaskIntoConstraints = NO;
     
     _minimalBar.translatesAutoresizingMaskIntoConstraints = NO;
     _coverView.translatesAutoresizingMaskIntoConstraints = NO;
     
     [self.view addSubview:_minimalBar];
-    [self.view addSubview:_optionalLeftControllerAccessory];
-    [self.view addSubview:_optionalRightControllerAccessory];
     
     [self.view addSubview:[[BDZSituationDisplayService sharedInstance] display]];
     [[BDZSituationDisplayService sharedInstance] setSuperView:self.view];
@@ -137,44 +119,6 @@ static NSString *kRightButtonID = @"rightButton";
                                                        multiplier:1
                                                          constant:30. ]];
     
-    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-15-[_optionalLeftControllerAccessory(==_optionalRightControllerAccessory)]-60-[_optionalRightControllerAccessory]-15-|"
-                                                                             options:0
-                                                                             metrics:nil
-                                                                               views:NSDictionaryOfVariableBindings(_optionalLeftControllerAccessory, _optionalRightControllerAccessory)
-                                      ]];
-    
-    [constraints addObject:[NSLayoutConstraint constraintWithItem:_optionalRightControllerAccessory
-                                                        attribute:NSLayoutAttributeTop
-                                                        relatedBy:NSLayoutRelationEqual
-                                                           toItem:_minimalBar
-                                                        attribute:NSLayoutAttributeTop
-                                                       multiplier:1
-                                                         constant:0.f ]];
-    
-    [constraints addObject:[NSLayoutConstraint constraintWithItem:_optionalRightControllerAccessory
-                                                        attribute:NSLayoutAttributeBottom
-                                                        relatedBy:NSLayoutRelationEqual
-                                                           toItem:_minimalBar
-                                                        attribute:NSLayoutAttributeBottom
-                                                       multiplier:1
-                                                         constant:0.f ]];
-    
-    [constraints addObject:[NSLayoutConstraint constraintWithItem:_optionalLeftControllerAccessory
-                                                        attribute:NSLayoutAttributeTop
-                                                        relatedBy:NSLayoutRelationEqual
-                                                           toItem:_minimalBar
-                                                        attribute:NSLayoutAttributeTop
-                                                       multiplier:1
-                                                         constant:0.f ]];
-    
-    [constraints addObject:[NSLayoutConstraint constraintWithItem:_optionalLeftControllerAccessory
-                                                        attribute:NSLayoutAttributeBottom
-                                                        relatedBy:NSLayoutRelationEqual
-                                                           toItem:_minimalBar
-                                                        attribute:NSLayoutAttributeBottom
-                                                       multiplier:1
-                                                         constant:0.f ]];
-
     NSLayoutConstraint *situationDisplayTopConstraint = [NSLayoutConstraint constraintWithItem:situationDisplay
                                                                                      attribute:NSLayoutAttributeTop
                                                                                      relatedBy:NSLayoutRelationEqual
@@ -195,7 +139,6 @@ static NSString *kRightButtonID = @"rightButton";
 - (void)changeToPageIndex:(NSUInteger)pageIndex {
     CGFloat xPoint = pageIndex * self.view.frame.size.width;
     [self.scrollView setContentOffset:CGPointMake(xPoint, 0)];
-    [self showButtonForControllerIndex:pageIndex];
 }
 
 
@@ -316,59 +259,16 @@ static NSString *kRightButtonID = @"rightButton";
 
 #pragma Optional Accessory Methods
 
-- (void)showButtonForControllerIndex:(NSInteger)controllerIndex
+- (void)installOptionalLeftButton:(UIImageView *)leftItem onController:(UIViewController *)controller
 {
-    _optionalLeftControllerAccessory.userInteractionEnabled = NO;
-    _optionalRightControllerAccessory.userInteractionEnabled = NO;
-    
-    [_optionalLeftControllerAccessory.subviews each:^(UIButton *leftButton) {
-        leftButton.alpha = 0;
-    }];
-    
-    [_optionalRightControllerAccessory.subviews each:^(UIButton *rightButton) {
-        rightButton.alpha = 0;
-    }];
-    
-    UIButton *leftButtonToShow = _optionalControllerButtons[@(controllerIndex)][kLeftButtonID];
-    UIButton *rightButtonToShow = _optionalControllerButtons[@(controllerIndex)][kRightButtonID];
-    
-    if (leftButtonToShow) {
-        _optionalLeftControllerAccessory.userInteractionEnabled = YES;
-        leftButtonToShow.alpha = 1;
-    }
-    
-    if (rightButtonToShow) {
-        _optionalRightControllerAccessory.userInteractionEnabled = YES;
-        rightButtonToShow.alpha = 1;
-    }
+    NSInteger indexOfController = [_viewControllers indexOfObject:controller];
+    [_minimalBar installOptionalLeftButton:leftItem forControllerIndex:indexOfController];
 }
 
-- (void)installOptionalLeftButton:(UIButton *)leftButton onController:(UIViewController *)controller
+- (void)installOptionalRightButton:(UIImageView *)rightItem onController:(UIViewController *)controller
 {
-    leftButton.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    NSInteger indexOfView = [_viewControllers indexOfObject:controller];
-    
-    [_optionalLeftControllerAccessory addSubview:leftButton];
-    _optionalControllerButtons[@(indexOfView)][kLeftButtonID] = leftButton;
-    
-    [_optionalLeftControllerAccessory addConstraints:[BDZConstraintGenerator verticalConstraintsForViews:@[leftButton]]];
-    [_optionalLeftControllerAccessory addConstraints:[BDZConstraintGenerator horizontalConstraintsForViews:@[leftButton]]];
-    
-    [_optionalLeftControllerAccessory layoutSubviews];
-}
-
-- (void)installOptionalRightButton:(UIButton *)rightButton onController:(UIViewController *)controller
-{
-    rightButton.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    [_optionalRightControllerAccessory addSubview:rightButton];
-    _optionalControllerButtons[@(controller.view.tag)][kRightButtonID] = rightButton;
-    
-    [_optionalRightControllerAccessory addConstraints:[BDZConstraintGenerator verticalConstraintsForViews:@[rightButton]]];
-    [_optionalRightControllerAccessory addConstraints:[BDZConstraintGenerator horizontalConstraintsForViews:@[rightButton]]];
-    
-    [_optionalRightControllerAccessory layoutSubviews];
+    NSInteger indexOfController = [_viewControllers indexOfObject:controller];
+    [_minimalBar installOptionalRightButton:rightItem forControllerIndex:indexOfController];
 }
 
 
@@ -390,8 +290,8 @@ static NSString *kRightButtonID = @"rightButton";
     }
     
     [_viewControllers enumerateObjectsUsingBlock: ^(UIViewController* viewController, NSUInteger idx, BOOL *stop) {
-        
-        _optionalControllerButtons[@(idx)] = [@{} mutableCopy];
+
+        _minimalBar.optionalControllerButtons[@(idx)] = [@{} mutableCopy];
         
         viewController.view.frame = CGRectMake(self.view.frame.size.width * idx, 0, self.view.frame.size.width, self.view.frame.size.height);
         viewController.view.tag = idx;

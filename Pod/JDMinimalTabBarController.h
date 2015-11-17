@@ -14,8 +14,8 @@
 @property (nonatomic, strong) NSArray *viewControllers;
 @property (nonatomic, strong) JDMinimalTabBar *minimalBar;
 
-- (void)installOptionalLeftButton:(UIButton *)leftButton onController:(UIViewController *)controller;
-- (void)installOptionalRightButton:(UIButton *)rightButton onController:(UIViewController *)controller;
+- (void)installOptionalLeftButton:(UIImageView *)leftItem onController:(UIViewController *)controller;
+- (void)installOptionalRightButton:(UIImageView *)rightItem onController:(UIViewController *)controller;
 
 + (JDMinimalTabBarController *)sharedInstance;
 

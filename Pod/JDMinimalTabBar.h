@@ -30,8 +30,16 @@
 @property (nonatomic, strong) UIColor* defaultTintColor;
 @property (nonatomic, strong) UIColor* selectedTintColor;
 
+@property (nonatomic, strong) NSMutableDictionary *optionalControllerButtons;
+
+@property (nonatomic, strong) UIView *optionalLeftControllerAccessory;
+@property (nonatomic, strong) UIView *optionalRightControllerAccessory;
+
 - (void)scrollOverviewButtonsWithPercentage:(CGFloat)offsetPercentage;
 - (void)returnMenuToSelected:(NSUInteger)index;
 - (void)createButtonItems:(NSArray *)viewControllers;
+
+- (void)installOptionalLeftButton:(UIImageView *)leftItem forControllerIndex:(NSInteger)controllerIndex;
+- (void)installOptionalRightButton:(UIImageView *)rightItem forControllerIndex:(NSInteger)controllerIndex;
 
 @end

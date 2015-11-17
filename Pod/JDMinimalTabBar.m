@@ -18,6 +18,9 @@ typedef enum : NSUInteger {
     MenuStateFullyOpened = (1 << 2),
 } MenuState;
 
+static NSString *kLeftButtonID = @"leftButton";
+static NSString *kRightButtonID = @"rightButton";
+
 @interface JDMinimalTabBar ()
 
 @property (nonatomic) CGFloat firstX;
@@ -27,9 +30,29 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) NSArray *adjustableButtonConstaints;
 @property (nonatomic) BOOL initialLayoutsSet;
 @property (nonatomic) BOOL isDisplayingAll;
+
 @end
 
 @implementation JDMinimalTabBar
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        _optionalControllerButtons = [NSMutableDictionary new];
+        
+        _optionalLeftControllerAccessory = [UIView new];
+        _optionalRightControllerAccessory = [UIView new];
+        
+        _optionalLeftControllerAccessory.translatesAutoresizingMaskIntoConstraints = NO;
+        _optionalRightControllerAccessory.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        [self addSubview:_optionalLeftControllerAccessory];
+        [self addSubview:_optionalRightControllerAccessory];
+        
+        [self addConstraints:self.optionalControllerAccessoryConstraints];
+    }
+    return self;
+}
 
 - (void)layoutSubviews {
 
@@ -125,6 +148,19 @@ typedef enum : NSUInteger {
     return [constraints copy];
 }
 
+- (NSArray *)optionalControllerAccessoryConstraints
+{
+    NSMutableArray *constraints = [[NSMutableArray alloc] init];
+
+    [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_optionalRightControllerAccessory, _optionalLeftControllerAccessory]]];
+    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-35-[_optionalLeftControllerAccessory(==90)]-(>=0)-[_optionalRightControllerAccessory(==_optionalRightControllerAccessory)]-35-|"
+                                                                             options:0
+                                                                             metrics:nil
+                                                                               views:NSDictionaryOfVariableBindings(_optionalLeftControllerAccessory, _optionalRightControllerAccessory)
+                                      ]];
+    return constraints;
+}
+
 -(NSArray*)defaultAdjustableConstraints{
     NSMutableArray* constraints = [[NSMutableArray alloc] init];
     [self.buttons enumerateObjectsUsingBlock: ^(JDMinimalTabBarButton *mbButton, NSUInteger idx, BOOL *stop) {
@@ -140,6 +176,90 @@ typedef enum : NSUInteger {
     return [constraints copy];
 }
 
+#pragma Mark Optional Accessory Views
+
+- (void)showOptionalButtonsForControllerIndex:(NSInteger)controllerIndex
+{
+    _optionalLeftControllerAccessory.userInteractionEnabled = NO;
+    _optionalRightControllerAccessory.userInteractionEnabled = NO;
+    
+    [_optionalLeftControllerAccessory.subviews each:^(UIButton *leftButton) {
+        leftButton.alpha = 0;
+    }];
+    
+    [_optionalRightControllerAccessory.subviews each:^(UIButton *rightButton) {
+        rightButton.alpha = 0;
+    }];
+    
+    UIButton *leftButtonToShow = _optionalControllerButtons[@(controllerIndex)][kLeftButtonID];
+    UIButton *rightButtonToShow = _optionalControllerButtons[@(controllerIndex)][kRightButtonID];
+    
+    void (^animation)() = ^{
+    
+        _optionalLeftControllerAccessory.alpha = 1;
+        _optionalRightControllerAccessory.alpha = 1;
+        
+        if (leftButtonToShow) {
+            _optionalLeftControllerAccessory.userInteractionEnabled = YES;
+            leftButtonToShow.alpha = 1;
+        }
+        
+        if (rightButtonToShow) {
+            _optionalRightControllerAccessory.userInteractionEnabled = YES;
+            rightButtonToShow.alpha = 1;
+        }
+    };
+    
+    [UIView animateWithDuration:.2
+                          delay:.15
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:animation
+                     completion:nil];
+}
+
+- (void)hideOptionalButtons
+{
+    _optionalLeftControllerAccessory.userInteractionEnabled = NO;
+    _optionalRightControllerAccessory.userInteractionEnabled = NO;
+
+    void (^animation)() = ^{
+        _optionalLeftControllerAccessory.alpha = 0;
+        _optionalRightControllerAccessory.alpha = 0;
+    };
+    
+    [UIView animateWithDuration:.2
+                          delay:0.
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:animation
+                     completion:nil];
+}
+
+- (void)installOptionalLeftButton:(UIImageView *)leftItem forControllerIndex:(NSInteger)controllerIndex
+{
+    leftItem.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [_optionalLeftControllerAccessory addSubview:leftItem];
+    _optionalControllerButtons[@(controllerIndex)][kLeftButtonID] = leftItem;
+    
+    [_optionalLeftControllerAccessory addConstraints:[BDZConstraintGenerator verticalConstraintsForViews:@[leftItem]]];
+    [_optionalLeftControllerAccessory addConstraints:[BDZConstraintGenerator horizontalConstraintsForViews:@[leftItem]]];
+    
+    [_optionalLeftControllerAccessory layoutSubviews];
+}
+
+- (void)installOptionalRightButton:(UIImageView *)rightItem forControllerIndex:(NSInteger)controllerIndex
+{
+    rightItem.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [_optionalRightControllerAccessory addSubview:rightItem];
+    _optionalControllerButtons[@(controllerIndex)][kRightButtonID] = rightItem;
+    
+    [_optionalRightControllerAccessory addConstraints:[BDZConstraintGenerator verticalConstraintsForViews:@[rightItem]]];
+    [_optionalRightControllerAccessory addConstraints:[BDZConstraintGenerator horizontalConstraintsForViews:@[rightItem]]];
+    
+    [_optionalRightControllerAccessory layoutSubviews];
+}
+
 
 
 #pragma Mark Tap Button ---
@@ -151,15 +271,18 @@ typedef enum : NSUInteger {
             case ButtonStateDisplayedInactive:
                 [mbButton setButtonState:ButtonStateSelected];
                 [self collapseAllButtons];
+                [self showOptionalButtonsForControllerIndex:mbButton.tag];
                 [self.mMinimalBarDelegate changeToPageIndex:mbButton.tag];
                 break;
             case ButtonStateDisplayedActive:
                 [mbButton setButtonState:ButtonStateSelected];
                 [self collapseAllButtons];
+                [self showOptionalButtonsForControllerIndex:mbButton.tag];
                 [self.mMinimalBarDelegate changeToPageIndex:mbButton.tag];
                 break;
             case ButtonStateSelected:
                 [self displayAllButtons];
+                [self hideOptionalButtons];
                 break;
             default:
                 break;
