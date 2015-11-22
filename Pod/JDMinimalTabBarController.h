@@ -13,9 +13,12 @@
 
 @property (nonatomic, strong) NSArray *viewControllers;
 @property (nonatomic, strong) JDMinimalTabBar *minimalBar;
+@property (nonatomic, weak) UIImage *backgroundImage;
 
 - (void)installOptionalLeftButton:(UIImageView *)leftItem onController:(UIViewController *)controller;
 - (void)installOptionalRightButton:(UIImageView *)rightItem onController:(UIViewController *)controller;
+
+- (void)shouldShowBackgroundEffectsView:(BOOL)shouldShow;
 
 + (JDMinimalTabBarController *)sharedInstance;
 

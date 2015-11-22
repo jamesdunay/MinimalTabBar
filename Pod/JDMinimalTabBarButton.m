@@ -10,7 +10,7 @@
 
 @implementation JDMinimalTabBarButton
 
--(id)initWithButtonWithTabBarItem:(UITabBarItem*)tabBarItem{
+- (instancetype)initWithButtonWithTabBarItem:(UITabBarItem*)tabBarItem{
     self = [super init];
     if (self) {
         
@@ -42,7 +42,7 @@
 }
 
 
--(NSArray*)defaultConstraints{
+- (NSArray*)defaultConstraints{
     
     NSMutableArray* constraints = [[NSMutableArray alloc] init];
     
@@ -92,7 +92,7 @@
 -(void)setSelected:(BOOL)selected{
     [super setSelected:selected];
     if (_hideTitleWhenSelected) {
-        _title.hidden = selected;
+        _title.hidden = !_showTitle || selected;
     }
 }
 

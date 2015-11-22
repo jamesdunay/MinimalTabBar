@@ -153,7 +153,7 @@ static NSString *kRightButtonID = @"rightButton";
     NSMutableArray *constraints = [[NSMutableArray alloc] init];
 
     [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_optionalRightControllerAccessory, _optionalLeftControllerAccessory]]];
-    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-35-[_optionalLeftControllerAccessory(==90)]-(>=0)-[_optionalRightControllerAccessory(==_optionalRightControllerAccessory)]-35-|"
+    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-35-[_optionalLeftControllerAccessory(==90)]-(>=0)-[_optionalRightControllerAccessory(==_optionalLeftControllerAccessory)]-35-|"
                                                                              options:0
                                                                              metrics:nil
                                                                                views:NSDictionaryOfVariableBindings(_optionalLeftControllerAccessory, _optionalRightControllerAccessory)

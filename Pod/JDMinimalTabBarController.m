@@ -20,6 +20,9 @@ static CGFloat minimalBarHeight = 70.f;
 @property (nonatomic) CGAffineTransform viewControllerTransform;
 @property (nonatomic) CGAffineTransform scrollViewTransform;
 
+@property (nonatomic, strong) UIImageView *backgroundImageView;
+@property (nonatomic, strong) UIVisualEffectView *backgroundEffectView;
+
 @end
 
 @implementation JDMinimalTabBarController
@@ -53,11 +56,11 @@ static CGFloat minimalBarHeight = 70.f;
     _minimalBar = [JDMinimalTabBar new];
     _viewControllers = [NSArray new];
     _scrollView = [UIScrollView new];
+    _backgroundImageView = [UIImageView new];
     
     _coverView = [JDViewHitTestOverride new];
     _coverView.scrollView = _scrollView;
     [self.view addSubview:_coverView];
-    
     
     [_scrollView setPagingEnabled:YES];
     [_scrollView setDelegate:self];
@@ -69,25 +72,23 @@ static CGFloat minimalBarHeight = 70.f;
     
     _minimalBar.mMinimalBarDelegate = self;
     
+    _backgroundImageView.backgroundColor = [UIColor redColor];
+    [_scrollView addSubview:_backgroundImageView];
+    
     _minimalBar.translatesAutoresizingMaskIntoConstraints = NO;
     _coverView.translatesAutoresizingMaskIntoConstraints = NO;
     
     [self.view addSubview:_minimalBar];
-    
     [self.view addSubview:[[BDZSituationDisplayService sharedInstance] display]];
+    
     [[BDZSituationDisplayService sharedInstance] setSuperView:self.view];
     
     [self.view addConstraints:[self defaultConstraints]];
     [self allowScrollViewUserInteraction:NO];
 }
 
-//- (void)viewWillLayoutSubviews
-//{
-//    [super viewWillLayoutSubviews];
-//    [_minimalBar layoutSubviews];
-//}
-
-- (NSArray *)defaultConstraints {
+- (NSArray *)defaultConstraints
+{
     NSMutableArray *constraints = [[NSMutableArray alloc] init];
     
     UIView *situationDisplay = [[BDZSituationDisplayService sharedInstance] display];
@@ -139,6 +140,7 @@ static CGFloat minimalBarHeight = 70.f;
 - (void)changeToPageIndex:(NSUInteger)pageIndex {
     CGFloat xPoint = pageIndex * self.view.frame.size.width;
     [self.scrollView setContentOffset:CGPointMake(xPoint, 0)];
+    [self readyControllerForDisplay:[self controllerForIndex:pageIndex]];
 }
 
 
@@ -158,12 +160,22 @@ static CGFloat minimalBarHeight = 70.f;
 
 - (void)didSwitchToIndex:(NSUInteger)pageIndex {
     CGFloat xPoint = pageIndex * self.scrollView.frame.size.width;
-    [UIView animateWithDuration:.2f animations: ^{
-        [self.scrollView setContentOffset:CGPointMake(xPoint, 0)];
-    }];
+    [UIView animateWithDuration:.6f
+                          delay:0.
+         usingSpringWithDamping:.92
+          initialSpringVelocity:3.
+                        options:UIViewAnimationOptionCurveLinear
+                     animations: ^{
+                         [self.scrollView setContentOffset:CGPointMake(xPoint, 0)];
+                     }completion:nil];
+    
+    [self readyControllerForDisplay:[self controllerForIndex:pageIndex]];
 }
 
-
+- (void)setBackgroundImage:(UIImage *)backgroundImage
+{
+    _backgroundImageView.image = backgroundImage;
+}
 
 #pragma Display/Overview Methods
 
@@ -246,6 +258,7 @@ static CGFloat minimalBarHeight = 70.f;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     CGFloat contentOffSet = scrollView.contentOffset.x;
     [_minimalBar scrollOverviewButtonsWithPercentage:contentOffSet / _coverView.frame.size.width];
+    _backgroundImageView.frame = CGRectMake(scrollView.contentOffset.x/4, 0, CGRectGetWidth(_backgroundImageView.frame), CGRectGetHeight(_backgroundImageView.frame));
 }
 
 
@@ -271,21 +284,19 @@ static CGFloat minimalBarHeight = 70.f;
     [_minimalBar installOptionalRightButton:rightItem forControllerIndex:indexOfController];
 }
 
-
-
-// need to layoutSubviews for each.
-
-
 #pragma Mark Setters
 
 - (void)setViewControllers:(NSArray *)viewControllers {
     _viewControllers = viewControllers;
     
     [_scrollView setContentSize:CGSizeMake(self.view.frame.size.width * _viewControllers.count, self.view.frame.size.height)];
+    _backgroundImageView.frame = CGRectMake(0, 0, _scrollView.contentSize.width, _scrollView.contentSize.height);
+    
+    [self createBackgroundEffectView];
     
     if (self.scrollView.subviews) {
-        [self.scrollView.subviews enumerateObjectsUsingBlock: ^(UIView *view, NSUInteger idx, BOOL *stop) {
-            [view removeFromSuperview];
+        [self.scrollView.subviews each:^(UIView *view) {
+            if (![view isKindOfClass:[UIImageView class]]) [view removeFromSuperview];
         }];
     }
     
@@ -303,6 +314,39 @@ static CGFloat minimalBarHeight = 70.f;
     
     [self.view addConstraints:[self defaultConstraints]];
     [_minimalBar createButtonItems:_viewControllers];
+}
+
+- (UIViewController *)controllerForIndex:(NSInteger)index
+{
+    return _viewControllers[index];
+}
+
+- (void)readyControllerForDisplay:(UIViewController *)controller
+{
+    [controller viewDidAppear:YES];
+}
+
+
+
+# pragma Mark Background Image
+
+- (void)shouldShowBackgroundEffectsView:(BOOL)shouldShow
+{
+    [UIView transitionWithView:_backgroundImageView duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        if (shouldShow) {
+            [_backgroundImageView addSubview:_backgroundEffectView];
+        } else {
+            [_backgroundEffectView removeFromSuperview];
+        }
+
+    } completion:nil];
+}
+
+- (void)createBackgroundEffectView
+{
+    UIVisualEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight];
+    _backgroundEffectView = [[UIVisualEffectView alloc] initWithEffect:effect];
+    _backgroundEffectView.frame = _backgroundImageView.bounds;
 }
 
 @end
