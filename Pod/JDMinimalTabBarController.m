@@ -93,7 +93,7 @@ static CGFloat minimalBarHeight = 70.f;
     
     UIView *situationDisplay = [[BDZSituationDisplayService sharedInstance] display];
     
-    [constraints addObjectsFromArray:[BDZConstraintGenerator horizontalConstraintsForViews:@[_coverView, _minimalBar, situationDisplay]]];
+    [constraints addObjectsFromArray:[BDZConstraintGenerator horizontalConstraintsForViews:@[_coverView, _minimalBar]]];
     [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_coverView]]];
     
     [constraints addObject:[NSLayoutConstraint constraintWithItem:_minimalBar
@@ -107,29 +107,45 @@ static CGFloat minimalBarHeight = 70.f;
     [constraints addObject:[NSLayoutConstraint constraintWithItem:_minimalBar
                                                         attribute:NSLayoutAttributeBottom
                                                         relatedBy:NSLayoutRelationEqual
-                                                           toItem:situationDisplay
-                                                        attribute:NSLayoutAttributeTop
+                                                           toItem:self.view
+                                                        attribute:NSLayoutAttributeBottom
                                                        multiplier:1
                                                          constant:0.f ]];
     
     [constraints addObject:[NSLayoutConstraint constraintWithItem:situationDisplay
                                                         attribute:NSLayoutAttributeHeight
                                                         relatedBy:NSLayoutRelationEqual
-                                                           toItem:nil
-                                                        attribute:NSLayoutAttributeNotAnAttribute
-                                                       multiplier:1
-                                                         constant:30. ]];
+                                                           toItem:_minimalBar
+                                                        attribute:NSLayoutAttributeHeight
+                                                       multiplier:1.
+                                                         constant:0. ]];
+    
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:situationDisplay
+                                                        attribute:NSLayoutAttributeTop
+                                                        relatedBy:NSLayoutRelationEqual
+                                                           toItem:_minimalBar
+                                                        attribute:NSLayoutAttributeTop
+                                                       multiplier:1.
+                                                         constant:0. ]];
+
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:situationDisplay
+                                                        attribute:NSLayoutAttributeWidth
+                                                        relatedBy:NSLayoutRelationEqual
+                                                           toItem:self.view
+                                                        attribute:NSLayoutAttributeWidth
+                                                       multiplier:.5
+                                                         constant:0. ]];
     
     NSLayoutConstraint *situationDisplayTopConstraint = [NSLayoutConstraint constraintWithItem:situationDisplay
-                                                                                     attribute:NSLayoutAttributeTop
+                                                                                     attribute:NSLayoutAttributeLeft
                                                                                      relatedBy:NSLayoutRelationEqual
                                                                                         toItem:self.view
-                                                                                     attribute:NSLayoutAttributeBottom
+                                                                                     attribute:NSLayoutAttributeRight
                                                                                     multiplier:1
                                                                                       constant:0.f ];
     
     [[BDZSituationDisplayService sharedInstance] setRequiredDisplayConstraint:situationDisplayTopConstraint];
-    [constraints addObject:situationDisplayTopConstraint];
+    [constraints addObject:[[BDZSituationDisplayService sharedInstance] requiredDisplayConstraint]];
     
     return [constraints copy];
 }
@@ -326,7 +342,11 @@ static CGFloat minimalBarHeight = 70.f;
     [controller viewDidAppear:YES];
 }
 
-
+- (void)shouldFocusButtons:(BOOL)focus
+{
+    if (focus)  [_minimalBar focusButtons];
+    else        [_minimalBar unfocusButtons];
+}
 
 # pragma Mark Background Image
 

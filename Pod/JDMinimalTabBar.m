@@ -152,8 +152,8 @@ static NSString *kRightButtonID = @"rightButton";
 {
     NSMutableArray *constraints = [[NSMutableArray alloc] init];
 
-    [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_optionalRightControllerAccessory, _optionalLeftControllerAccessory]]];
-    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-35-[_optionalLeftControllerAccessory(==90)]-(>=0)-[_optionalRightControllerAccessory(==_optionalLeftControllerAccessory)]-35-|"
+    [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_optionalRightControllerAccessory, _optionalLeftControllerAccessory]]];    
+    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-25-[_optionalLeftControllerAccessory(==90)][_optionalRightControllerAccessory(==_optionalLeftControllerAccessory)]-(>=0)-|"
                                                                              options:0
                                                                              metrics:nil
                                                                                views:NSDictionaryOfVariableBindings(_optionalLeftControllerAccessory, _optionalRightControllerAccessory)
@@ -194,15 +194,21 @@ static NSString *kRightButtonID = @"rightButton";
     UIButton *leftButtonToShow = _optionalControllerButtons[@(controllerIndex)][kLeftButtonID];
     UIButton *rightButtonToShow = _optionalControllerButtons[@(controllerIndex)][kRightButtonID];
     
-    void (^animation)() = ^{
-    
+    void (^leftAnimation)() = ^{
+
+        _optionalLeftControllerAccessory.layer.transform = CATransform3DScale(CATransform3DIdentity, 1, 1, 1);
         _optionalLeftControllerAccessory.alpha = 1;
-        _optionalRightControllerAccessory.alpha = 1;
         
         if (leftButtonToShow) {
             _optionalLeftControllerAccessory.userInteractionEnabled = YES;
             leftButtonToShow.alpha = 1;
         }
+    };
+    
+    void (^rightAnimation)() = ^{
+    
+        _optionalRightControllerAccessory.layer.transform = CATransform3DScale(CATransform3DIdentity, 1, 1, 1);
+        _optionalRightControllerAccessory.alpha = 1;
         
         if (rightButtonToShow) {
             _optionalRightControllerAccessory.userInteractionEnabled = YES;
@@ -210,10 +216,20 @@ static NSString *kRightButtonID = @"rightButton";
         }
     };
     
-    [UIView animateWithDuration:.2
-                          delay:.15
-                        options:UIViewAnimationOptionCurveEaseOut
-                     animations:animation
+    [UIView animateWithDuration:1.4
+                          delay:.125
+         usingSpringWithDamping:.88
+          initialSpringVelocity:12
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:leftAnimation
+                     completion:nil];
+    
+    [UIView animateWithDuration:1.6
+                          delay:.17
+         usingSpringWithDamping:.88
+          initialSpringVelocity:12
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:rightAnimation
                      completion:nil];
 }
 
@@ -222,15 +238,30 @@ static NSString *kRightButtonID = @"rightButton";
     _optionalLeftControllerAccessory.userInteractionEnabled = NO;
     _optionalRightControllerAccessory.userInteractionEnabled = NO;
 
-    void (^animation)() = ^{
+    void (^leftAnimation)() = ^{
+        _optionalLeftControllerAccessory.layer.transform = CATransform3DScale(CATransform3DIdentity, .4, .4, 1);
         _optionalLeftControllerAccessory.alpha = 0;
+    };
+    
+    void (^rightAnimation)() = ^{
+        _optionalRightControllerAccessory.layer.transform = CATransform3DScale(CATransform3DIdentity, .4, .4, 1);
         _optionalRightControllerAccessory.alpha = 0;
     };
     
-    [UIView animateWithDuration:.2
-                          delay:0.
-                        options:UIViewAnimationOptionCurveEaseOut
-                     animations:animation
+    [UIView animateWithDuration:.4
+                          delay:.06
+         usingSpringWithDamping:.88
+          initialSpringVelocity:8
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:leftAnimation
+                     completion:nil];
+    
+    [UIView animateWithDuration:.4
+                          delay:0
+         usingSpringWithDamping:.88
+          initialSpringVelocity:8
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:rightAnimation
                      completion:nil];
 }
 
@@ -299,13 +330,12 @@ static NSString *kRightButtonID = @"rightButton";
 - (void)collapseAllButtons {
 
     [self shouldEnablePanGestures:YES];
-    CGFloat mbButtonWidth = self.frame.size.width / self.buttons.count;
     
     void (^alphaAnimation)() = ^{ [self hideNonSelectedMenuItems]; };
     
     void (^animations)(void) = ^{
         [self.adjustableButtonConstaints enumerateObjectsUsingBlock: ^(NSLayoutConstraint *constraint, NSUInteger idx, BOOL *stop) {
-            constraint.constant = mbButtonWidth * (self.adjustableButtonConstaints.count / 2);
+            constraint.constant = [self collapsedPositionForIndex:[self indexOfActiveButton]];
         }];
         [self layoutIfNeeded];
     };
@@ -438,7 +468,7 @@ static NSString *kRightButtonID = @"rightButton";
         void (^animations)(void) = ^{
             [self.adjustableButtonConstaints enumerateObjectsUsingBlock: ^(NSLayoutConstraint *constraint, NSUInteger idx, BOOL *stop) {
                 if ([(JDMinimalTabBarButton *)constraint.firstItem isEqual : self.buttons[[self indexOfActiveButton]]]) {
-                    constraint.constant = self.frame.size.width / self.buttons.count;
+                    constraint.constant = [self collapsedPositionForIndex:[self indexOfActiveButton]];
                 }
             }];
             activeButton.alpha = 0;
@@ -526,6 +556,11 @@ static NSString *kRightButtonID = @"rightButton";
     }];
 }
 
+- (UIButton *)selectedButton
+{
+    return self.buttons[self.indexOfActiveButton];
+}
+
 - (NSUInteger)indexOfActiveButton {
     __block NSUInteger index = 0;
     [self.buttons enumerateObjectsUsingBlock: ^(JDMinimalTabBarButton *mbButton, NSUInteger idx, BOOL *stop) {
@@ -544,6 +579,40 @@ static NSString *kRightButtonID = @"rightButton";
 
 - (NSUInteger)numberOfViews {
     return [self.buttons count];
+}
+
+- (CGFloat)collapsedPositionForIndex:(NSInteger)index
+{
+    BOOL hasAccessoryButtons = self.optionalControllerButtons[@(index)][kLeftButtonID] || self.optionalControllerButtons[@(index)][kRightButtonID];
+    if (hasAccessoryButtons) {
+        CGFloat mbButtonWidth = self.frame.size.width / self.buttons.count;
+        return CGRectGetWidth(self.frame) - mbButtonWidth - 14;
+    } else {
+        return self.frame.size.width / self.buttons.count;
+    }
+}
+
+- (void)unfocusButtons
+{
+    [self selectedButton].layer.transform = CATransform3DScale(CATransform3DIdentity, .6, .6, 1);
+    [self selectedButton].alpha = 0;
+    
+//    [self.buttons each:^(UIButton *button) {
+//        button.layer.transform = CATransform3DScale(button.layer.transform, .4, .4, 1);
+//        button.alpha = .2;
+//    }];
+}
+
+- (void)focusButtons
+{
+    
+    [self selectedButton].layer.transform = CATransform3DScale(CATransform3DIdentity, 1, 1, 1);
+    [self selectedButton].alpha = 1;
+    
+//    [self.buttons each:^(UIButton *button) {
+//        button.layer.transform = CATransform3DScale(CATransform3DIdentity, 1, 1, 1);
+//        button.alpha = 1;
+//    }];
 }
 
 - (void)returnMenuToSelected:(NSUInteger)index {

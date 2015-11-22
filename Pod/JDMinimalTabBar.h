@@ -35,6 +35,9 @@
 @property (nonatomic, strong) UIView *optionalLeftControllerAccessory;
 @property (nonatomic, strong) UIView *optionalRightControllerAccessory;
 
+- (void)unfocusButtons;
+- (void)focusButtons;
+
 - (void)scrollOverviewButtonsWithPercentage:(CGFloat)offsetPercentage;
 - (void)returnMenuToSelected:(NSUInteger)index;
 - (void)createButtonItems:(NSArray *)viewControllers;

@@ -19,6 +19,7 @@
 - (void)installOptionalRightButton:(UIImageView *)rightItem onController:(UIViewController *)controller;
 
 - (void)shouldShowBackgroundEffectsView:(BOOL)shouldShow;
+- (void)shouldFocusButtons:(BOOL)focus;
 
 + (JDMinimalTabBarController *)sharedInstance;
 
