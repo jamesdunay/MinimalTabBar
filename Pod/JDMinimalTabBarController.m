@@ -369,4 +369,9 @@ static CGFloat minimalBarHeight = 70.f;
     _backgroundEffectView.frame = _backgroundImageView.bounds;
 }
 
+- (void)hideBar:(BOOL)hide
+{
+    _minimalBar.alpha = !hide;
+}
+
 @end

@@ -20,6 +20,7 @@
 
 - (void)shouldShowBackgroundEffectsView:(BOOL)shouldShow;
 - (void)shouldFocusButtons:(BOOL)focus;
+- (void)hideBar:(BOOL)hide;
 
 + (JDMinimalTabBarController *)sharedInstance;
 
