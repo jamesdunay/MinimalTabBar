@@ -11,7 +11,8 @@
 typedef enum : NSUInteger {
     ButtonStateDisplayedInactive = (1 << 0),
     ButtonStateSelected = (1 << 1),
-    ButtonStateDisplayedActive = (1 << 2)
+    ButtonStateDisplayedActive = (1 << 2),
+    ButtonStateDisplayedLoading = (1 << 3)
 } ButtonState;
 
 
@@ -27,5 +28,8 @@ typedef enum : NSUInteger {
 @property (nonatomic) BOOL hideTitleWhenSelected;
 
 -(id)initWithButtonWithTabBarItem:(UITabBarItem*)tabBarItem;
+
+- (void)showSpinner;
+- (void)hideSpinner;
 
 @end

@@ -6,19 +6,22 @@
 //  Copyright (c) 2014 James.Dunay. All rights reserved.
 //
 
+#import "BDZNavigationController.h"
+#import "JDScrollView.h"
 #import "JDMinimalTabBarController.h"
 #import "JDViewHitTestOverride.h"
 #import "BDZSituationDisplayService.h"
 #import <QuartzCore/QuartzCore.h>
-
-static CGFloat minimalBarHeight = 70.f;
+#import "JDViewController.h"
 
 @interface JDMinimalTabBarController ()
 
-@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) JDScrollView *scrollView;
 @property (nonatomic, strong) JDViewHitTestOverride *coverView;
 @property (nonatomic) CGAffineTransform viewControllerTransform;
 @property (nonatomic) CGAffineTransform scrollViewTransform;
+
+@property (nonatomic, strong) NSLayoutConstraint *minimalBarBottomConstraint;
 
 @property (nonatomic, strong) UIImageView *backgroundImageView;
 @property (nonatomic, strong) UIVisualEffectView *backgroundEffectView;
@@ -55,8 +58,9 @@ static CGFloat minimalBarHeight = 70.f;
     
     _minimalBar = [JDMinimalTabBar new];
     _viewControllers = [NSArray new];
-    _scrollView = [UIScrollView new];
+    _scrollView = [JDScrollView new];
     _backgroundImageView = [UIImageView new];
+    _backgroundImageView.contentMode = UIViewContentModeScaleAspectFill;
     
     _coverView = [JDViewHitTestOverride new];
     _coverView.scrollView = _scrollView;
@@ -66,13 +70,12 @@ static CGFloat minimalBarHeight = 70.f;
     [_scrollView setDelegate:self];
     [_scrollView setClipsToBounds:NO];
     [_scrollView setAutoresizesSubviews:NO];
-    [_scrollView setFrame:self.view.frame];
+    [_scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
     _scrollViewTransform = _scrollView.transform;
     [_coverView addSubview:_scrollView];
     
     _minimalBar.mMinimalBarDelegate = self;
     
-    _backgroundImageView.backgroundColor = [UIColor redColor];
     [_scrollView addSubview:_backgroundImageView];
     
     _minimalBar.translatesAutoresizingMaskIntoConstraints = NO;
@@ -83,7 +86,6 @@ static CGFloat minimalBarHeight = 70.f;
     
     [[BDZSituationDisplayService sharedInstance] setSuperView:self.view];
     
-    [self.view addConstraints:[self defaultConstraints]];
     [self allowScrollViewUserInteraction:NO];
 }
 
@@ -93,8 +95,8 @@ static CGFloat minimalBarHeight = 70.f;
     
     UIView *situationDisplay = [[BDZSituationDisplayService sharedInstance] display];
     
-    [constraints addObjectsFromArray:[BDZConstraintGenerator horizontalConstraintsForViews:@[_coverView, _minimalBar]]];
-    [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_coverView]]];
+    [constraints addObjectsFromArray:[BDZConstraintGenerator horizontalConstraintsForViews:@[_coverView, _minimalBar, _scrollView]]];
+    [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_coverView, _scrollView]]];
     
     [constraints addObject:[NSLayoutConstraint constraintWithItem:_minimalBar
                                                         attribute:NSLayoutAttributeHeight
@@ -104,13 +106,14 @@ static CGFloat minimalBarHeight = 70.f;
                                                        multiplier:1
                                                          constant:minimalBarHeight ]];
     
-    [constraints addObject:[NSLayoutConstraint constraintWithItem:_minimalBar
+    _minimalBarBottomConstraint = [NSLayoutConstraint constraintWithItem:_minimalBar
                                                         attribute:NSLayoutAttributeBottom
                                                         relatedBy:NSLayoutRelationEqual
                                                            toItem:self.view
                                                         attribute:NSLayoutAttributeBottom
                                                        multiplier:1
-                                                         constant:0.f ]];
+                                                         constant:0.f ];
+    [constraints addObject:_minimalBarBottomConstraint];
     
     [constraints addObject:[NSLayoutConstraint constraintWithItem:situationDisplay
                                                         attribute:NSLayoutAttributeHeight
@@ -152,6 +155,12 @@ static CGFloat minimalBarHeight = 70.f;
 
 #pragma Mark Delegate Methods
 #pragma Mark Tapped Delegates
+
+- (void)selectItemAtIndex:(NSInteger)index
+{
+    [self.minimalBar hideOptionalButtons];
+    [self changeToPageIndex:index];
+}
 
 - (void)changeToPageIndex:(NSUInteger)pageIndex {
     CGFloat xPoint = pageIndex * self.view.frame.size.width;
@@ -274,7 +283,7 @@ static CGFloat minimalBarHeight = 70.f;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     CGFloat contentOffSet = scrollView.contentOffset.x;
     [_minimalBar scrollOverviewButtonsWithPercentage:contentOffSet / _coverView.frame.size.width];
-    _backgroundImageView.frame = CGRectMake(scrollView.contentOffset.x/4, 0, CGRectGetWidth(_backgroundImageView.frame), CGRectGetHeight(_backgroundImageView.frame));
+    _backgroundImageView.frame = CGRectMake(0, 0, CGRectGetWidth(_backgroundImageView.frame), CGRectGetHeight(_backgroundImageView.frame));
 }
 
 
@@ -316,30 +325,38 @@ static CGFloat minimalBarHeight = 70.f;
         }];
     }
     
-    [_viewControllers enumerateObjectsUsingBlock: ^(UIViewController* viewController, NSUInteger idx, BOOL *stop) {
+    [_viewControllers enumerateObjectsUsingBlock: ^(JDViewController* viewController, NSUInteger idx, BOOL *stop) {
 
         _minimalBar.optionalControllerButtons[@(idx)] = [@{} mutableCopy];
         
         viewController.view.frame = CGRectMake(self.view.frame.size.width * idx, 0, self.view.frame.size.width, self.view.frame.size.height);
+    
         viewController.view.tag = idx;
         viewController.tabBarItem.tag = idx;
         
         _viewControllerTransform = viewController.view.transform;
         [self.scrollView addSubview:viewController.view];
     }];
-    
+
     [self.view addConstraints:[self defaultConstraints]];
+    [self.view layoutSubviews];
     [_minimalBar createButtonItems:_viewControllers];
 }
 
-- (UIViewController *)controllerForIndex:(NSInteger)index
+- (JDViewController *)controllerForIndex:(NSInteger)index
 {
     return _viewControllers[index];
 }
 
 - (void)readyControllerForDisplay:(UIViewController *)controller
 {
-    [controller viewDidAppear:YES];
+    if ([controller isKindOfClass:[UINavigationController class]] && [controller respondsToSelector:@selector(willDisplayJDViewController)]) {
+        [(JDViewController *)[(UINavigationController *)controller topViewController] willDisplayJDViewController];
+    }
+    
+    if ([controller isKindOfClass:[JDViewController class]]) {
+        [(JDViewController *)controller willDisplayJDViewController];
+    }
 }
 
 - (void)shouldFocusButtons:(BOOL)focus
@@ -369,9 +386,71 @@ static CGFloat minimalBarHeight = 70.f;
     _backgroundEffectView.frame = _backgroundImageView.bounds;
 }
 
+- (void)animateHideBar
+{
+    _minimalBarBottomConstraint.constant = minimalBarHeight;
+    [self.view layoutSubviews];
+}
+
+- (void)animateShowBar
+{
+    _minimalBarBottomConstraint.constant = 0;
+    [self.view layoutSubviews];
+}
+
 - (void)hideBar:(BOOL)hide
 {
     _minimalBar.alpha = !hide;
+}
+
+# pragma Mark Custom Additions
+
+- (void)removeRightBarItem
+{
+    self.navigationItem.rightBarButtonItem = nil;
+}
+
+- (void)addTitle:(NSString *)title
+{
+    [self.navigationItem setTitleView:((BDZNavigationController *)self.navigationController).titleLabel];
+    
+    ((BDZNavigationController *)self.navigationController).titleLabel.text = title;
+    ((BDZNavigationController *)self.navigationController).titleLabel.alpha = 0;
+
+    [UIView animateWithDuration:.5 animations:^{
+        ((BDZNavigationController *)self.navigationController).titleLabel.alpha = 1;
+    }];
+}
+
+- (void)hideTitle
+{
+    [UIView animateWithDuration:.3 animations:^{
+        ((BDZNavigationController *)self.navigationController).titleLabel.alpha = 0;
+    }];
+}
+
+- (void)addCloseBarButtonwithTarget:(nullable id)target action:(nullable SEL)action
+{
+    UIImage *closeImage = [[UIImage imageNamed:@"Close_Icon"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    UIBarButtonItem * closeButton = [[UIBarButtonItem alloc]
+                                     initWithImage:closeImage
+                                     style:UIBarButtonItemStylePlain
+                                     target:target
+                                     action:action];
+    
+    self.navigationItem.rightBarButtonItem = closeButton;
+}
+
+- (void)showSpinnerOn:(UIViewController *)viewController
+{
+    NSInteger buttonIndex = [self.viewControllers indexOfObject:viewController];
+    [self.minimalBar showSpinnerAtIndex:buttonIndex];
+}
+
+- (void)hideSpinnerOn:(UIViewController *)viewController
+{
+    NSInteger buttonIndex = [self.viewControllers indexOfObject:viewController];
+    [self.minimalBar hideSpinnerAtIndex:buttonIndex];
 }
 
 @end

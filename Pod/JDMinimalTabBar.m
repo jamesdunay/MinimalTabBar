@@ -13,9 +13,9 @@
 #pragma Mark Enums ---
 
 typedef enum : NSUInteger {
-    MenuStateDefault = (1 << 0),
-    MenuStateDisplayed = (1 << 1),
-    MenuStateFullyOpened = (1 << 2),
+    MenuStateAllDisplayed = 0,
+    MenuStateSingleActive,
+    MenuState3DOpened
 } MenuState;
 
 static NSString *kLeftButtonID = @"leftButton";
@@ -23,6 +23,7 @@ static NSString *kRightButtonID = @"rightButton";
 
 @interface JDMinimalTabBar ()
 
+@property (nonatomic) MenuState menuState;
 @property (nonatomic) CGFloat firstX;
 @property (nonatomic) CGFloat firstY;
 @property (nonatomic) CGFloat lastXOffset;
@@ -38,6 +39,9 @@ static NSString *kRightButtonID = @"rightButton";
 - (instancetype)init
 {
     if (self = [super init]) {
+        
+        self.menuState = MenuStateAllDisplayed;
+        
         _optionalControllerButtons = [NSMutableDictionary new];
         
         _optionalLeftControllerAccessory = [UIView new];
@@ -68,7 +72,7 @@ static NSString *kRightButtonID = @"rightButton";
 - (void)createButtonItems:(NSArray *)viewControllers {
     self.buttons = [[NSMutableArray alloc] init];
     
-    [viewControllers enumerateObjectsUsingBlock: ^(UIViewController* viewController, NSUInteger idx, BOOL *stop) {
+    [viewControllers enumerateObjectsUsingBlock: ^(JDViewController* viewController, NSUInteger idx, BOOL *stop) {
         
         JDMinimalTabBarButton *mbButton = [[JDMinimalTabBarButton alloc] initWithButtonWithTabBarItem:viewController.tabBarItem];
         mbButton.defaultTintColor = _defaultTintColor;
@@ -153,7 +157,7 @@ static NSString *kRightButtonID = @"rightButton";
     NSMutableArray *constraints = [[NSMutableArray alloc] init];
 
     [constraints addObjectsFromArray:[BDZConstraintGenerator verticalConstraintsForViews:@[_optionalRightControllerAccessory, _optionalLeftControllerAccessory]]];    
-    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-25-[_optionalLeftControllerAccessory(==90)][_optionalRightControllerAccessory(==_optionalLeftControllerAccessory)]-(>=0)-|"
+    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-25-[_optionalLeftControllerAccessory(==60)]-20-[_optionalRightControllerAccessory(==_optionalLeftControllerAccessory)]-(>=0)-|"
                                                                              options:0
                                                                              metrics:nil
                                                                                views:NSDictionaryOfVariableBindings(_optionalLeftControllerAccessory, _optionalRightControllerAccessory)
@@ -276,6 +280,8 @@ static NSString *kRightButtonID = @"rightButton";
     [_optionalLeftControllerAccessory addConstraints:[BDZConstraintGenerator horizontalConstraintsForViews:@[leftItem]]];
     
     [_optionalLeftControllerAccessory layoutSubviews];
+    
+    [self correctOptionalButtonsVisibility];
 }
 
 - (void)installOptionalRightButton:(UIImageView *)rightItem forControllerIndex:(NSInteger)controllerIndex
@@ -289,9 +295,36 @@ static NSString *kRightButtonID = @"rightButton";
     [_optionalRightControllerAccessory addConstraints:[BDZConstraintGenerator horizontalConstraintsForViews:@[rightItem]]];
     
     [_optionalRightControllerAccessory layoutSubviews];
+    
+    [self correctOptionalButtonsVisibility];
 }
 
+- (void)correctOptionalButtonsVisibility
+{
+    if (self.menuState == MenuStateAllDisplayed) {
+        _optionalRightControllerAccessory.alpha = 0;
+        _optionalLeftControllerAccessory.alpha = 0;
+    }
+    
+    if (self.menuState == MenuStateSingleActive) {
+        NSInteger activeIndex = [self indexOfActiveButton];
+        
+        UIButton *leftButtonToShow = _optionalControllerButtons[@(activeIndex)][kLeftButtonID];
+        UIButton *rightButtonToShow = _optionalControllerButtons[@(activeIndex)][kRightButtonID];
 
+        [_optionalLeftControllerAccessory.subviews each:^(UIButton *leftButton) {
+            if (![leftButtonToShow isEqual:leftButton]) {
+                leftButton.alpha = 0;
+            }
+        }];
+        
+        [_optionalRightControllerAccessory.subviews each:^(UIButton *rightButton) {
+            if (![leftButtonToShow isEqual:rightButtonToShow]) {
+                rightButton.alpha = 0;
+            }
+        }];
+    }
+}
 
 #pragma Mark Tap Button ---
 
@@ -300,25 +333,22 @@ static NSString *kRightButtonID = @"rightButton";
     if (!self.isDisplayingAll) {
         switch ([mbButton buttonState]) {
             case ButtonStateDisplayedInactive:
-                [mbButton setButtonState:ButtonStateSelected];
-                [self collapseAllButtons];
-                [self showOptionalButtonsForControllerIndex:mbButton.tag];
-                [self.mMinimalBarDelegate changeToPageIndex:mbButton.tag];
-                break;
             case ButtonStateDisplayedActive:
+                self.menuState = MenuStateSingleActive;
                 [mbButton setButtonState:ButtonStateSelected];
                 [self collapseAllButtons];
                 [self showOptionalButtonsForControllerIndex:mbButton.tag];
                 [self.mMinimalBarDelegate changeToPageIndex:mbButton.tag];
                 break;
             case ButtonStateSelected:
+                self.menuState = MenuStateAllDisplayed;
                 [self displayAllButtons];
                 [self hideOptionalButtons];
                 break;
             default:
                 break;
         }
-    }else{
+    } else {
         [self.mMinimalBarDelegate displayViewAtIndex:mbButton.tag];
     }
 }
@@ -542,7 +572,17 @@ static NSString *kRightButtonID = @"rightButton";
     }
 }
 
+- (void)showSpinnerAtIndex:(NSInteger)index
+{
+    JDMinimalTabBarButton *button = self.buttons[index];
+    [button showSpinner];
+}
 
+- (void)hideSpinnerAtIndex:(NSInteger)index;
+{
+    JDMinimalTabBarButton *button = self.buttons[index];
+    [button hideSpinner];
+}
 
 #pragma Mark Helper Methods ---
 
@@ -556,7 +596,7 @@ static NSString *kRightButtonID = @"rightButton";
     }];
 }
 
-- (UIButton *)selectedButton
+- (JDMinimalTabBarButton *)selectedButton
 {
     return self.buttons[self.indexOfActiveButton];
 }
@@ -568,7 +608,6 @@ static NSString *kRightButtonID = @"rightButton";
             index = idx;
         }
     }];
-    NSLog(@"index %ld", index);
     return index;
 }
 
@@ -586,7 +625,7 @@ static NSString *kRightButtonID = @"rightButton";
     BOOL hasAccessoryButtons = self.optionalControllerButtons[@(index)][kLeftButtonID] || self.optionalControllerButtons[@(index)][kRightButtonID];
     if (hasAccessoryButtons) {
         CGFloat mbButtonWidth = self.frame.size.width / self.buttons.count;
-        return CGRectGetWidth(self.frame) - mbButtonWidth - 14;
+        return CGRectGetWidth(self.frame) - mbButtonWidth;
     } else {
         return self.frame.size.width / self.buttons.count;
     }

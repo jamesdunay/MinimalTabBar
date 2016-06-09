@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "JDViewController.h"
 
 @protocol MinimalBarDelegate <NSObject>
 
@@ -38,11 +39,16 @@
 - (void)unfocusButtons;
 - (void)focusButtons;
 
+- (void)hideOptionalButtons;
+
 - (void)scrollOverviewButtonsWithPercentage:(CGFloat)offsetPercentage;
 - (void)returnMenuToSelected:(NSUInteger)index;
 - (void)createButtonItems:(NSArray *)viewControllers;
 
 - (void)installOptionalLeftButton:(UIImageView *)leftItem forControllerIndex:(NSInteger)controllerIndex;
 - (void)installOptionalRightButton:(UIImageView *)rightItem forControllerIndex:(NSInteger)controllerIndex;
+
+- (void)showSpinnerAtIndex:(NSInteger)index;
+- (void)hideSpinnerAtIndex:(NSInteger)index;
 
 @end

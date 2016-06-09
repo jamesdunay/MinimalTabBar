@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "JDMinimalTabBar.h"
+#import "JDViewController.h"
 
 @interface JDMinimalTabBarController : UIViewController <MinimalBarDelegate, UIScrollViewDelegate>
 
@@ -22,6 +23,23 @@
 - (void)shouldFocusButtons:(BOOL)focus;
 - (void)hideBar:(BOOL)hide;
 
+- (void)addCloseBarButtonwithTarget:(nullable id)target action:(nullable SEL)action;
+
+- (void)addTitle:(NSString *)title;
+
+- (void)hideTitle;
+
+- (void)animateHideBar;
+
+- (void)animateShowBar;
+
+- (void)removeRightBarItem;
+
+- (void)selectItemAtIndex:(NSInteger)index;
+
 + (JDMinimalTabBarController *)sharedInstance;
+
+- (void)showSpinnerOn:(UIViewController *)viewController;
+- (void)hideSpinnerOn:(UIViewController *)viewController;
 
 @end
