@@ -8,7 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^KeyboardWillShow)(NSNotification *);
+typedef void(^KeyboardWillHide)(NSNotification *);
+
 @interface JDViewController : UIViewController
+
+@property (nonatomic, copy) KeyboardWillShow keyboardWillShow;
+@property (nonatomic, copy) KeyboardWillHide keyboardWillHide;
 
 - (void)willDisplayJDViewController;
 
@@ -17,5 +23,8 @@
 
 - (void)showSpinnerInNavigationBar;
 - (void)hideSpinnerInNavigationBar;
+
+- (void)addKeyboardObservers;
+- (void)removeObservers;
 
 @end
