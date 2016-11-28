@@ -24,6 +24,9 @@ static CGFloat minimalBarHeight = 70.f;
 - (id)init {
     self = [super init];
     if (self) {
+        _viewControllers = [[NSArray alloc] init];
+        _minimalBar = [[JDMinimalTabBar alloc] init];
+        _scrollView = [[UIScrollView alloc] init];
     }
     return self;
 }
@@ -34,10 +37,6 @@ static CGFloat minimalBarHeight = 70.f;
 }
 
 - (void)setupViews {
-    _minimalBar = [[JDMinimalTabBar alloc] init];
-    _viewControllers = [[NSArray alloc] init];
-    _scrollView = [[UIScrollView alloc] init];
-    
     _coverView = [[JDViewHitTestOverride alloc] init];
     _coverView.translatesAutoresizingMaskIntoConstraints = NO;
     _coverView.scrollView = _scrollView;
@@ -234,24 +233,32 @@ static CGFloat minimalBarHeight = 70.f;
 #pragma Mark Setters
 
 - (void)setViewControllers:(NSArray *)viewControllers {
-    _viewControllers = viewControllers;
     
-    [_scrollView setContentSize:CGSizeMake(self.view.frame.size.width * _viewControllers.count, self.view.frame.size.height)];
     
-    if (self.scrollView.subviews) {
-        [self.scrollView.subviews enumerateObjectsUsingBlock: ^(UIView *view, NSUInteger idx, BOOL *stop) {
-            [view removeFromSuperview];
+    [_scrollView setContentSize:CGSizeMake(self.view.frame.size.width * viewControllers.count, self.view.frame.size.height)];
+    
+    if (_viewControllers) {
+        [_viewControllers enumerateObjectsUsingBlock:^(UIViewController  *viewController, NSUInteger idx, BOOL *stop) {
+            [viewController removeFromParentViewController];
+            [viewController.view removeFromSuperview];
         }];
     }
     
+    _viewControllers = viewControllers;
+    
     [_viewControllers enumerateObjectsUsingBlock: ^(UIViewController* viewController, NSUInteger idx, BOOL *stop) {
+        [viewController willMoveToParentViewController:self];
+        [viewController.view willMoveToSuperview:_scrollView];
         viewController.view.frame = CGRectMake(self.view.frame.size.width * idx, 0, self.view.frame.size.width, self.view.frame.size.height);
-        viewController.view.translatesAutoresizingMaskIntoConstraints = NO;
+        //viewController.view.translatesAutoresizingMaskIntoConstraints = NO;
         viewController.view.tag = idx;
         viewController.tabBarItem.tag = idx;
         
         _viewControllerTransform = viewController.view.transform;
-        [self.scrollView addSubview:viewController.view];
+        [_scrollView addSubview:viewController.view];
+        [self addChildViewController:viewController];
+        [viewController didMoveToParentViewController:self];
+        
     }];
     
     [self.view addConstraints:[self defaultConstraints]];
