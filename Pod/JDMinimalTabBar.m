@@ -181,8 +181,10 @@ typedef enum : NSUInteger {
         [self.adjustableButtonConstaints enumerateObjectsUsingBlock: ^(NSLayoutConstraint *constraint, NSUInteger idx, BOOL *stop) {
             constraint.constant = mbButtonWidth * (self.adjustableButtonConstaints.count / 2);
         }];
+        self.frame = CGRectMake(0.0, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
         [self layoutIfNeeded];
     };
+    
     
     [UIView animateWithDuration:.65f
                           delay:0.f
